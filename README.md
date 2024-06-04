@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://github.com/artHub-j/la-burguesa-db/assets/92806890/aab77bf2-8837-4632-a25e-fd98a788000c" height="150">
+<img src="https://github.com/artHub-j/la-burguesa-db/assets/92806890/e8130f6a-4e35-4fa5-b8ff-e90a933c12b1" height="180">
 </p>
 
 <h1 align="center">
