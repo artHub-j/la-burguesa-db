@@ -1,11 +1,14 @@
 from decimal import Decimal
 from faker import Faker
 import random
+from random import choice, randint
 import datetime
 from django.db import connection
 from django.utils import timezone
 from la_burguesa.models import Empleat, Producte, Client, Beguda, Hamburguesa, Acompanyament, Postre, Menu, Comanda, Valoracio, Ingredient, ADomicili, DeRecollida, EstatComandaADomicili, EstatComandaRecollida, Item, Propietat
 from django.core.management.base import BaseCommand
+from django.contrib.auth.models import User
+
 
 fake = Faker()
 
@@ -212,19 +215,60 @@ def generate_menu(id, h, a, b, p, sum_preus):
     
 
 # Generate fake clients
+# def generate_clients(num_clients):
+#     for _ in range(num_clients):
+#         # correu = fake.unique.email()
+#         # nom = fake.name()
+#         num_telefon = fake.random_number(digits=9, fix_len=True)
+#         adreca = fake.address()
+#         data_naix = fake.date_of_birth(minimum_age=18, maximum_age=90)
+#         preferits = Producte.objects.order_by('?')[:random.randint(0, 5)]
+#         client = Client.objects.create(
+#             # correu=correu, 
+#             # nom=nom, 
+            
+#             num_telefon=num_telefon, 
+#             adreca=adreca,
+#             data_naix=data_naix)
+        
+#         client.preferits.set(preferits)
+#     print ('Fi proces creacio clients')
+
+# Generate fake clients
 def generate_clients(num_clients):
     for _ in range(num_clients):
-        correu = fake.unique.email()
-        nom = fake.name()
-        num_telefon = fake.random_number(digits=9, fix_len=True)
-        adreca = fake.address()
-        data_naix = fake.date_of_birth(minimum_age=18, maximum_age=90)
+        naive_datetime = fake.date_time_between(start_date='-2y', end_date='now')
+        aware_datetime = timezone.make_aware(naive_datetime, timezone.get_current_timezone())
+
+        is_active = choice([True, False])
+        password = fake.password(length=10)
+        username = fake.user_name() + str(randint(0, 1000))
+        first_name = fake.first_name()
+        last_name = fake.last_name()
+        email = fake.email()
+        date_joined = aware_datetime
         preferits = Producte.objects.order_by('?')[:random.randint(0, 5)]
-        client = Client.objects.create(correu=correu, nom=nom, num_telefon=num_telefon, adreca=adreca,
-                                       data_naix=data_naix)
-        client.preferits.set(preferits)
+
+        # Create Client object
+        client = Client.objects.create(
+            password = password,
+            is_superuser = False,
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            is_staff=False,  # Set to True if needed
+            is_active=is_active,  # Set to False if needed
+            date_joined=date_joined,
+            # user_ptr_id=user.id,
+            num_telefon = fake.random_number(digits=9, fix_len=True),
+            adreca = fake.address(),
+            data_naix = fake.date_of_birth(minimum_age=18, maximum_age=90)
+            # Add other fields specific to Client if needed
+        )
+        # client.preferits.set(preferits)
+
     print ('Fi proces creacio clients')
-    
 
 
 def generate_comanda(num_comandes):
@@ -244,7 +288,7 @@ def generate_comanda(num_comandes):
         preu_total = 0; 
         # preu_total = 
         dni_processada = random.choice(E)
-        correu_client = random.choice(C)
+        username_client = random.choice(C)
 
         # Create a Comanda instance
         comanda = Comanda.objects.create(
@@ -252,7 +296,7 @@ def generate_comanda(num_comandes):
             hora_creacio=hora_creacio,
             preu_total=preu_total,
             dni_processada=dni_processada,
-            correu_client=correu_client
+            username_client=username_client
         )
 
         # Generate additional data for DeRecollida or ADomicili
@@ -444,6 +488,7 @@ def truncate_table(table_name):
 def main():
 
     truncate_table("la_burguesa_client")
+    truncate_table("auth_user")
     truncate_table("la_burguesa_producte")
     truncate_table("la_burguesa_empleat")
     truncate_table("la_burguesa_valoracio")
@@ -452,10 +497,12 @@ def main():
     truncate_table("la_burguesa_item")
     truncate_table("la_burguesa_propietat")
 
-    num_clients = 5000
+    truncate_table("auth_user")
+
+    num_clients = 20
     num_productes = 100 # divisibles de 5 millor
-    num_empleats = 300
-    num_comandes = 15000
+    num_empleats = 10
+    num_comandes = 100
 
     generate_ingredient() # Va sense numero
     generate_empleats(num_empleats)
@@ -470,8 +517,8 @@ def main():
     comandes = Comanda.objects.all()
 
     generate_comanda(num_comandes)
-    generate_valoracio(num_clients)
-    generate_item(comandes, 1, 12) # rang de items possibles per comanda
+    # generate_valoracio(num_clients)
+    generate_item(comandes, 1, 4) # rang de items possibles per comanda
     generate_propietat()
 
 # TODO: debugar el preu en propietat
