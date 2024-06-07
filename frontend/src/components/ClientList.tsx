@@ -13,6 +13,23 @@ import {
   Center,
   Flex,
   Spacer,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  FormControl,
+  FormLabel,
+  Input,
 } from "@chakra-ui/react";
 
 interface Client {
@@ -26,13 +43,19 @@ interface Client {
   data_naix: string;
 }
 
-import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import { DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
 
 const ClientList: React.FC = () => {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const deleteDisclosure = useDisclosure();
+  const editDisclosure = useDisclosure();
+
+  const cancelRef = React.useRef();
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
   useEffect(() => {
     axios
       .get("http://127.0.0.1:8000/clients/")
@@ -55,6 +78,52 @@ const ClientList: React.FC = () => {
         "Failed to delete client:",
         error.response || error.message
       );
+    }
+  };
+
+  const handleDeleteClick = (id: number) => {
+    setSelectedClientId(id);
+    deleteDisclosure.onOpen();
+  };
+
+  const confirmDelete = () => {
+    if (selectedClientId !== null) {
+      deleteClient(selectedClientId);
+    }
+    deleteDisclosure.onClose();
+  };
+
+  const handleEditClick = (client: Client) => {
+    setSelectedClient(client);
+    editDisclosure.onOpen();
+  };
+
+  const handleSave = async () => {
+    if (selectedClient) {
+      try {
+        await axios.put(
+          `http://127.0.0.1:8000/update-client/${selectedClient.id}/`,
+          selectedClient
+        );
+        setClients(
+          clients.map((client) =>
+            client.id === selectedClient.id ? selectedClient : client
+          )
+        );
+        editDisclosure.onClose();
+      } catch (error: any) {
+        console.error(
+          "Failed to update client:",
+          error.response || error.message
+        );
+      }
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    if (selectedClient) {
+      setSelectedClient({ ...selectedClient, [name]: value });
     }
   };
 
@@ -136,29 +205,139 @@ const ClientList: React.FC = () => {
                 colorScheme="red"
                 aria-label="Delete client"
                 icon={<DeleteIcon />}
-                onClick={() => deleteClient(client.id)}
+                onClick={() => handleDeleteClick(client.id)}
               />
               <IconButton
                 marginRight="10px"
                 colorScheme="blue"
                 aria-label="Edit client"
                 icon={<EditIcon />}
-                onClick={() => {
-                  /* Your edit client logic here */
-                }}
+                onClick={() => handleEditClick(client)}
               />
-              <Button
+              <IconButton
+                aria-label="Consultar Comandes Client"
                 colorScheme="green"
+                icon={<ViewIcon />}
                 onClick={() => {
                   /* Your edit client logic here */
                 }}
-              >
-                Veure Comandes
-              </Button>
+              ></IconButton>
             </Flex>
           </Box>
         </Box>
       ))}
+
+      <Modal isOpen={editDisclosure.isOpen} onClose={editDisclosure.onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Edit Client</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            {selectedClient && (
+              <VStack spacing={4}>
+                <FormControl>
+                  <FormLabel>Username</FormLabel>
+                  <Input
+                    name="username"
+                    value={selectedClient.username}
+                    onChange={handleInputChange}
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>First Name</FormLabel>
+                  <Input
+                    name="first_name"
+                    value={selectedClient.first_name}
+                    onChange={handleInputChange}
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Last Name</FormLabel>
+                  <Input
+                    name="last_name"
+                    value={selectedClient.last_name}
+                    onChange={handleInputChange}
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Email</FormLabel>
+                  <Input
+                    name="email"
+                    value={selectedClient.email}
+                    onChange={handleInputChange}
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Phone</FormLabel>
+                  <Input
+                    name="num_telefon"
+                    value={selectedClient.num_telefon}
+                    onChange={handleInputChange}
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Address</FormLabel>
+                  <Input
+                    name="adreca"
+                    value={selectedClient.adreca}
+                    onChange={handleInputChange}
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Birth Date</FormLabel>
+                  <Input
+                    name="data_naix"
+                    value={selectedClient.data_naix}
+                    onChange={handleInputChange}
+                  />
+                </FormControl>
+              </VStack>
+            )}
+          </ModalBody>
+
+          <ModalFooter>
+            <Button onClick={editDisclosure.onClose}>Cancel</Button>
+            <Button colorScheme="blue" onClick={handleSave} ml={3}>
+              Save
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      <AlertDialog
+        isOpen={deleteDisclosure.isOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={deleteDisclosure.onClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader
+              fontSize="lg"
+              fontWeight="normal"
+              backgroundColor="#f0f0f0"
+              borderBottom="1px solid #ccc"
+              color="black"
+              align="center"
+            >
+              Esborrar Client
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Esteu segur que voleu suprimir aquest client? Aquesta acció no pot
+              ser desfeta.
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={deleteDisclosure.onClose}>
+                Cancel.lar
+              </Button>
+              <Button colorScheme="red" onClick={confirmDelete} ml={3}>
+                Esborrar Client
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </VStack>
   );
 };
