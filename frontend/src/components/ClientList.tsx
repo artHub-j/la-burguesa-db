@@ -101,8 +101,8 @@ const ClientList: React.FC = () => {
   const handleSave = async () => {
     if (selectedClient) {
       try {
-        await axios.put(
-          `http://127.0.0.1:8000/update-client/${selectedClient.id}/`,
+        await axios.post(
+          `http://127.0.0.1:8000/clients/${selectedClient.id}/edit/`,
           selectedClient
         );
         setClients(
@@ -123,7 +123,14 @@ const ClientList: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (selectedClient) {
-      setSelectedClient({ ...selectedClient, [name]: value });
+      if (name === "username") {
+        // Ensure username is not null or empty
+        if (value.trim() !== "") {
+          setSelectedClient({ ...selectedClient, [name]: value });
+        }
+      } else {
+        setSelectedClient({ ...selectedClient, [name]: value });
+      }
     }
   };
 

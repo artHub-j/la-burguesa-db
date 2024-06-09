@@ -73,6 +73,9 @@ CORS_ALLOW_METHODS = [
     'PUT',
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+]
 
 ROOT_URLCONF = 'projecte_dabd.urls'
 
