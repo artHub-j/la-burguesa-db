@@ -52,15 +52,18 @@ const ClientList: React.FC = () => {
 
   const deleteDisclosure = useDisclosure();
   const editDisclosure = useDisclosure();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const cancelRef = React.useRef();
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:8000/clients/")
+      .get(`http://127.0.0.1:8000/clients/?page=${currentPage}`)
       .then((response) => {
         setClients(response.data);
+        setTotalPages(response.data.total_pages);
         setLoading(false);
       })
       .catch((error) => {
@@ -214,13 +217,13 @@ const ClientList: React.FC = () => {
                 icon={<DeleteIcon />}
                 onClick={() => handleDeleteClick(client.id)}
               />
-              <IconButton
+              {/* <IconButton
                 marginRight="10px"
                 colorScheme="blue"
                 aria-label="Edit client"
                 icon={<EditIcon />}
                 onClick={() => handleEditClick(client)}
-              />
+              /> */}
               <IconButton
                 aria-label="Consultar Comandes Client"
                 colorScheme="green"
@@ -345,6 +348,28 @@ const ClientList: React.FC = () => {
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
+
+      <Flex justifyContent="space-between" width="100%">
+        <Button
+          onClick={() =>
+            setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
+          }
+          isDisabled={currentPage === 1}
+        >
+          Previous
+        </Button>
+        <Text>
+          Page {currentPage} of {totalPages}
+        </Text>
+        <Button
+          onClick={() =>
+            setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
+          }
+          isDisabled={currentPage === totalPages}
+        >
+          Next
+        </Button>
+      </Flex>
     </VStack>
   );
 };

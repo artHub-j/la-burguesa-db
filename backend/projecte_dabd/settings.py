@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'la_burguesa.apps.LaBurguesaConfig',
     'corsheaders',
+    'django_filters',
 ]
 
 MIDDLEWARE = [

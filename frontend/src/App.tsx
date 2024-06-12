@@ -1,60 +1,3 @@
-// import { useState } from "react";
-// import reactLogo from "./assets/react.svg";
-// import viteLogo from "/vite.svg";
-// import "./App.css";
-// import SampleSidebar from "./components/SampleSidebar";
-// import { ChakraProvider } from "@chakra-ui/react";
-// import SocialProfileWithImage from "./components/SocialProfileWithImage";
-
-// function App() {
-//   // const [count, setCount] = useState(0);
-
-//   return (
-//     <ChakraProvider>
-//       <SocialProfileWithImage></SocialProfileWithImage>
-//     </ChakraProvider>
-//   );
-// }
-
-// export default App;
-
-// import React, { useEffect, useState } from "react";
-// import axios from "axios";
-
-// const App: React.FC = () => {
-//   const [username, setUsername] = useState<string>(""); // State to store the username input
-//   const [email, setEmail] = useState<string>("");
-//   const [error, setError] = useState<string | null>(null);
-
-//   const handleSearch = async () => {
-//     try {
-//       const response = await axios.get(
-//         `http://127.0.0.1:8000/get-email/${username}/`
-//       );
-//       console.log("Response data:", response.data); // Log the response data
-//       setEmail(response.data.email);
-//     } catch (error) {
-//       console.error("Error fetching email:", error);
-//       setError("Error fetching email");
-//     }
-//   };
-
-//   return (
-//     <div>
-//       <input
-//         type="text"
-//         value={username}
-//         onChange={(e) => setUsername(e.target.value)}
-//         placeholder="Enter username"
-//       />
-//       <button onClick={handleSearch}>Search Email</button>
-//       <div>{error ? <h1>{error}</h1> : <h1>Email: {email}</h1>}</div>
-//     </div>
-//   );
-// };
-
-// export default App;
-
 // App.tsx
 import React from "react";
 import {
@@ -70,6 +13,7 @@ import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import ClientList from "./components/ClientList";
 import ComandesPage from "./components/ComandesPage"; // Import your ComandesPage component
 import ProductesPage from "./components/ProductesPage"; // Import your ComandesPage component
+import IngredientsPage from "./components/IngredientsPage"; // Import your ComandesPage component
 
 const App: React.FC = () => {
   return (
@@ -89,7 +33,7 @@ const App: React.FC = () => {
               boxSize="50px"
             />
             <Spacer />
-            <Flex spacing={4}>
+            <Flex gap={4}>
               <Link to="/">
                 <Button colorScheme="teal">Home</Button>
               </Link>
@@ -101,6 +45,9 @@ const App: React.FC = () => {
               </Link>
               <Link to="/productes">
                 <Button colorScheme="teal">Productes</Button>
+              </Link>
+              <Link to="/ingredients">
+                <Button colorScheme="teal">Ingredients</Button>
               </Link>
             </Flex>
             <Spacer />
@@ -141,6 +88,7 @@ const App: React.FC = () => {
               <Route path="/clients" element={<ClientList />} />
               <Route path="/comandes" element={<ComandesPage />} />
               <Route path="/productes" element={<ProductesPage />} />
+              <Route path="/ingredients" element={<IngredientsPage />} />
               {/* Add more routes as needed */}
             </Routes>
           </Flex>

@@ -44,7 +44,7 @@ class Comanda(models.Model):
     data = models.DateField()
     hora_creacio = models.TimeField()
     preu_total = models.DecimalField(max_digits=10, decimal_places=2)
-    valorats = models.ManyToManyField(Producte, through='Item')
+    compra = models.ManyToManyField(Producte, through='Item')
 
     dni_processada = models.ForeignKey(Empleat, on_delete=models.CASCADE)
     username_client = models.ForeignKey(Client, on_delete=models.CASCADE)
@@ -75,6 +75,7 @@ class ADomicili(models.Model):
     dni_entrega = models.ForeignKey(Empleat, on_delete=models.CASCADE)
     estat = models.CharField(max_length=100, choices=[(estat.value, estat.value) for estat in EstatComandaADomicili])
 
+# els atributs comanda_id+producte_id hauriem de ser UK.
 class Item(models.Model):
     id = models.AutoField(primary_key=True)
     producte = models.ForeignKey(Producte, on_delete=models.CASCADE)
@@ -82,25 +83,41 @@ class Item(models.Model):
     quantitat_prod = models.IntegerField()
     preu_pagat_producte = models.DecimalField(max_digits=10, decimal_places=2)
 
+    class Meta:
+        unique_together = ('comanda', 'producte')    
+            
 class Ingredient(models.Model):
     nom = models.CharField(max_length=100, primary_key=True)
     preu = models.DecimalField(max_digits=10, decimal_places=2)
 
+
+# Error greu: Propietat és una classe feble segons l'UML. 
+# Per identificar-les cal una PK formada per 
+# item_id+numero_propietat, o sigui que la FK a 
+# Item forma part de la PK. Com que a django no podem tenir
+#  PK amb 2 o més atributs, calia crear un camp id PK 
+# autoincremental automàtic i afegir 
+# item_id+numero_propietat com a UK.
 class Propietat(models.Model):
-    numero_propietat = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
+    numero_propietat = models.IntegerField()
     quantitat_propietat = models.IntegerField()
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     descartats = models.ManyToManyField(Ingredient, related_name='propietats_descartats')
     suplements = models.ManyToManyField(Ingredient, related_name='propietats_suplements')
 
+    class Meta:
+        unique_together = ('item', 'numero_propietat')
+
+# els atributs correu_client_id+producte_id hauriem de ser UK.
 class Valoracio(models.Model):
     username_client = models.ForeignKey(Client, on_delete=models.CASCADE)
     producte = models.ForeignKey(Producte, on_delete=models.CASCADE)
     valor = models.IntegerField()
     comentari = models.TextField()
 
-    # class Meta:
-    #     unique_together = ('correu_client', 'producte')
+    class Meta:
+        unique_together = ('username_client', 'producte')
 
 class Hamburguesa(models.Model):
     producte = models.OneToOneField(Producte, on_delete=models.CASCADE, primary_key=True)
@@ -149,3 +166,5 @@ class Menu(models.Model):
 # class IngredientSuplement(models.Model):
 #     nom = models.CharField(max_length=100, primary_key=True)
 #     preu = models.DecimalField(max_digits=10, decimal_places=2)
+
+#--------------------------------------
