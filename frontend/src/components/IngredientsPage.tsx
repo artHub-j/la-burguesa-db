@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import axios from "axios";
 import {
   Box,
@@ -29,7 +29,7 @@ import {
   FormControl,
   FormLabel,
 } from "@chakra-ui/react";
-import { DeleteIcon, EditIcon, ViewIcon, AddIcon } from "@chakra-ui/icons";
+import { DeleteIcon, EditIcon, AddIcon } from "@chakra-ui/icons";
 
 interface Ingredient {
   nom: string;
@@ -42,6 +42,7 @@ const IngredientsPage: React.FC = () => {
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedIngredientNom, setSelectedIngredientNom] = useState<
     string | null
   >(null);
@@ -55,10 +56,10 @@ const IngredientsPage: React.FC = () => {
   const [newPreu, setNewPreu] = useState("");
   const [editPreu, setEditPreu] = useState("");
 
-  const fetchIngredients = (page: number) => {
+  const fetchIngredients = (page: number, search = "") => {
     setLoading(true);
     axios
-      .get(`http://127.0.0.1:8000/ingredients/?page=${page}`)
+      .get(`http://127.0.0.1:8000/ingredients/?page=${page}&search=${search}`)
       .then((response) => {
         setIngredients(response.data.results);
         setTotalPages(response.data.num_pages);
@@ -71,8 +72,8 @@ const IngredientsPage: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchIngredients(currentPage);
-  }, [currentPage]);
+    fetchIngredients(currentPage, searchQuery);
+  }, [currentPage, searchQuery]);
 
   const deleteIngredient = async (nom: string) => {
     try {
@@ -153,6 +154,30 @@ const IngredientsPage: React.FC = () => {
     }
   };
 
+  const debounce = (func: Function, delay: number) => {
+    let debounceTimer: NodeJS.Timeout;
+    return function (...args: any[]) {
+      const context = this;
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => func.apply(context, args), delay);
+    };
+  };
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const debouncedFetchIngredients = useCallback(
+    debounce(fetchIngredients, 500),
+    []
+  );
+
+  useEffect(() => {
+    if (searchQuery.length >= 4 || searchQuery.length === 0) {
+      debouncedFetchIngredients(1, searchQuery);
+    }
+  }, [searchQuery, debouncedFetchIngredients]);
+
   if (loading) {
     return <Spinner />;
   }
@@ -168,6 +193,16 @@ const IngredientsPage: React.FC = () => {
 
   return (
     <VStack spacing={4}>
+      <form onSubmit={(e) => e.preventDefault()}>
+        <FormControl id="search">
+          <Input
+            type="text"
+            placeholder="Search ingredients"
+            value={searchQuery}
+            onChange={handleSearchChange}
+          />
+        </FormControl>
+      </form>
       <Button
         marginRight="10px"
         colorScheme="yellow"
@@ -221,14 +256,6 @@ const IngredientsPage: React.FC = () => {
                 icon={<EditIcon />}
                 onClick={() => handleEditClick(ingredient)}
               />
-              {/* <IconButton
-                aria-label="View ingredient details"
-                colorScheme="green"
-                icon={<ViewIcon />}
-                onClick={() => {
-                  
-                }}
-              ></IconButton> */}
             </Flex>
           </Box>
         </Box>

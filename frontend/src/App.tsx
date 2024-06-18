@@ -1,4 +1,3 @@
-// App.tsx
 import React from "react";
 import {
   ChakraProvider,
@@ -11,9 +10,10 @@ import {
 } from "@chakra-ui/react";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import ClientList from "./components/ClientList";
-import ComandesPage from "./components/ComandesPage"; // Import your ComandesPage component
-import ProductesPage from "./components/ProductesPage"; // Import your ComandesPage component
-import IngredientsPage from "./components/IngredientsPage"; // Import your ComandesPage component
+import ComandesPage from "./components/ComandesPage";
+import ProductesPage from "./components/ProductesPage";
+import IngredientsPage from "./components/IngredientsPage";
+import HomePage from "./components/HomePage"; // Import the HomePage component
 
 const App: React.FC = () => {
   return (
@@ -53,15 +53,6 @@ const App: React.FC = () => {
             <Spacer />
           </Flex>
         </Box>
-        <Text
-          fontSize="30"
-          fontFamily="Roboto, sans-serif"
-          fontWeight="bold"
-          mb={0}
-          bg="black"
-          color="white"
-          textAlign="center"
-        ></Text>
         <Flex
           className="App"
           minHeight="100vh"
@@ -83,11 +74,11 @@ const App: React.FC = () => {
             alignItems="center"
           >
             <Routes>
+              <Route path="/" element={<HomePage />} />
               <Route path="/clients" element={<ClientList />} />
               <Route path="/comandes" element={<ComandesPage />} />
               <Route path="/productes" element={<ProductesPage />} />
               <Route path="/ingredients" element={<IngredientsPage />} />
-              {/* Add more routes as needed */}
             </Routes>
           </Flex>
         </Flex>

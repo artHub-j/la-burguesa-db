@@ -40,9 +40,14 @@ def get_client_details(request, client_id):
         return JsonResponse({'error': 'Client does not exist'}, status=404)
 
 def list_clients(request):
-    clients = Client.objects.all()
+    clients = Client.objects.all().order_by('id')  # Order by ID to have consistent pagination
+    paginator = Paginator(clients, 10)  # Show 10 clients per page
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     client_list = []
-    for client in clients:
+    for client in page_obj:
         client_list.append({
             'id': client.id,
             'username': client.username,
@@ -53,7 +58,15 @@ def list_clients(request):
             'adreca': client.adreca,
             'data_naix': client.data_naix,
         })
-    return JsonResponse(client_list, safe=False)
+
+    response_data = {
+        'results': client_list,
+        'count': paginator.count,
+        'num_pages': paginator.num_pages,
+        'current_page': page_obj.number,
+    }
+
+    return JsonResponse(response_data, safe=False)
 
 @csrf_exempt
 @require_http_methods(["DELETE"])
@@ -514,9 +527,13 @@ def edit_menu(request, id):
 
 @csrf_exempt
 def list_ingredients(request):
-    ingredients = Ingredient.objects.all().order_by('preu')
-    paginator = Paginator(ingredients, 10)
+    search_query = request.GET.get('search', '')
+    if search_query:
+        ingredients = Ingredient.objects.filter(nom__icontains=search_query)
+    else:
+        ingredients = Ingredient.objects.all().order_by('preu')
 
+    paginator = Paginator(ingredients, 10)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
 
@@ -530,6 +547,8 @@ def list_ingredients(request):
         'num_pages': paginator.num_pages,
         'current_page': page_obj.number,
     })
+
+
 
 @csrf_exempt
 def create_ingredient(request):

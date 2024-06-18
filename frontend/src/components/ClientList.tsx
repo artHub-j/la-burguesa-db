@@ -31,6 +31,7 @@ import {
   FormLabel,
   Input,
 } from "@chakra-ui/react";
+import { DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
 
 interface Client {
   id: number;
@@ -42,8 +43,6 @@ interface Client {
   adreca: string;
   data_naix: string;
 }
-
-import { DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
 
 const ClientList: React.FC = () => {
   const [clients, setClients] = useState<Client[]>([]);
@@ -58,19 +57,21 @@ const ClientList: React.FC = () => {
   const cancelRef = React.useRef();
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
+
   useEffect(() => {
+    setLoading(true);
     axios
       .get(`http://127.0.0.1:8000/clients/?page=${currentPage}`)
       .then((response) => {
-        setClients(response.data);
-        setTotalPages(response.data.total_pages);
+        setClients(response.data.results);
+        setTotalPages(response.data.num_pages);
         setLoading(false);
       })
       .catch((error) => {
         setError("Failed to fetch clients");
         setLoading(false);
       });
-  }, []);
+  }, [currentPage]);
 
   const deleteClient = async (id: number) => {
     try {
@@ -127,7 +128,6 @@ const ClientList: React.FC = () => {
     const { name, value } = e.target;
     if (selectedClient) {
       if (name === "username") {
-        // Ensure username is not null or empty
         if (value.trim() !== "") {
           setSelectedClient({ ...selectedClient, [name]: value });
         }
@@ -199,16 +199,8 @@ const ClientList: React.FC = () => {
               {client.data_naix}
             </Text>
           </Box>
-          <Box
-            flex="0"
-            // backgroundColor="#f0f0f0"
-            borderTop="1px solid white"
-            padding="10px"
-          >
+          <Box flex="0" borderTop="1px solid white" padding="10px">
             <Flex justifyContent="flex-end">
-              {" "}
-              {/* Aligns content to the right */}
-              {/* Use Spacer component to push buttons to the right */}
               <Spacer />
               <IconButton
                 marginRight="10px"
@@ -217,13 +209,6 @@ const ClientList: React.FC = () => {
                 icon={<DeleteIcon />}
                 onClick={() => handleDeleteClick(client.id)}
               />
-              {/* <IconButton
-                marginRight="10px"
-                colorScheme="blue"
-                aria-label="Edit client"
-                icon={<EditIcon />}
-                onClick={() => handleEditClick(client)}
-              /> */}
             </Flex>
           </Box>
         </Box>
