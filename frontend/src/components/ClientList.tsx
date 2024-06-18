@@ -224,14 +224,6 @@ const ClientList: React.FC = () => {
                 icon={<EditIcon />}
                 onClick={() => handleEditClick(client)}
               /> */}
-              <IconButton
-                aria-label="Consultar Comandes Client"
-                colorScheme="green"
-                icon={<ViewIcon />}
-                onClick={() => {
-                  /* Your edit client logic here */
-                }}
-              ></IconButton>
             </Flex>
           </Box>
         </Box>

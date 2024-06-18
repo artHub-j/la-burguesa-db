@@ -300,16 +300,21 @@ def edit_hamburguesa(request, id):
             hamburguesa = Hamburguesa.objects.get(producte=producte)
             hamburguesa.descripcio = data['descripcio']
             hamburguesa.ingredients_conte.clear()
-            for ingredient_id in data['ingredients_conte']:
-                ingredient = Ingredient.objects.get(nom=ingredient_id)
+
+            for ingredient_nom in data['ingredients_conte']:
+                ingredient = Ingredient.objects.get(nom=ingredient_nom)
                 hamburguesa.ingredients_conte.add(ingredient)
+
             hamburguesa.save()
             return JsonResponse({'id': hamburguesa.producte.id}, status=200)
         except Producte.DoesNotExist:
             return JsonResponse({'error': 'Product not found'}, status=404)
+        except Ingredient.DoesNotExist:
+            return JsonResponse({'error': 'One or more ingredients not found'}, status=404)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
-            
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 ################ ACOMPANYAMENT ################
 @csrf_exempt
@@ -471,16 +476,34 @@ def edit_menu(request, id):
             acompanyament = Acompanyament.objects.get(producte_id=data['acompanyament'])
             beguda = Beguda.objects.get(producte_id=data['beguda'])
             postre = Postre.objects.get(producte_id=data['postre'])
+            
+            # Calculate the suma_preus
+            suma_preus = (
+                hamburguesa.producte.preu +
+                acompanyament.producte.preu +
+                beguda.producte.preu +
+                postre.producte.preu
+            )
+
             menu = Menu.objects.get(producte=producte)
-            menu.suma_preus = data['suma_preus']
+            menu.suma_preus = suma_preus
             menu.hamburguesa = hamburguesa
             menu.acompanyament = acompanyament
             menu.beguda = beguda
             menu.postre = postre
             menu.save()
+            
             return JsonResponse({'id': menu.producte.id}, status=200)
         except Producte.DoesNotExist:
             return JsonResponse({'error': 'Product not found'}, status=404)
+        except Hamburguesa.DoesNotExist:
+            return JsonResponse({'error': 'Hamburguesa not found'}, status=404)
+        except Acompanyament.DoesNotExist:
+            return JsonResponse({'error': 'Acompanyament not found'}, status=404)
+        except Beguda.DoesNotExist:
+            return JsonResponse({'error': 'Beguda not found'}, status=404)
+        except Postre.DoesNotExist:
+            return JsonResponse({'error': 'Postre not found'}, status=404)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
 
@@ -491,18 +514,16 @@ def edit_menu(request, id):
 
 @csrf_exempt
 def list_ingredients(request):
-    ingredients = Ingredient.objects.all().order_by('preu')  # Order by preu in descending order
-    paginator = Paginator(ingredients, 10)  # Show 10 ingredients per page.
+    ingredients = Ingredient.objects.all().order_by('preu')
+    paginator = Paginator(ingredients, 10)
 
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
 
-    ingredient_list = []
-    for ingredient in page_obj:
-        ingredient_list.append({
-            'nom': ingredient.nom,
-            'preu': ingredient.preu,
-        })
+    ingredient_list = [{
+        'nom': ingredient.nom,
+        'preu': ingredient.preu,
+    } for ingredient in page_obj]
 
     return JsonResponse({
         'results': ingredient_list,

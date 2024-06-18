@@ -412,7 +412,7 @@ def generate_propietat():
             ingredients_descartat = ingr[:random.randint(0, len(ingr) -1)] # un item pot tenir de 0 a 3 ing descarats
             ingredients_suplement = Ingredient.objects.order_by('?')[:random.randint(0, 3)] # un item pot tenir de 0 a 3 ing suplements
             quantitat_de_item = item.quantitat_prod
-            prop = Propietat.objects.create(quantitat_propietat = quantitat_de_item, item_id = item.id)
+            prop = Propietat.objects.create(numero_propietat=1, quantitat_propietat = quantitat_de_item, item_id = item.id)
 
             prop.suplements.set(ingredients_suplement)
             prop.descartats.set(ingredients_descartat)
@@ -499,7 +499,7 @@ def main():
 
     truncate_table("auth_user")
 
-    num_clients = 20
+    num_clients = 50
     num_productes = 100 # divisibles de 5 millor
     num_empleats = 10
     num_comandes = 100

@@ -61,9 +61,7 @@ const App: React.FC = () => {
           bg="black"
           color="white"
           textAlign="center"
-        >
-          CONSULTAR
-        </Text>
+        ></Text>
         <Flex
           className="App"
           minHeight="100vh"

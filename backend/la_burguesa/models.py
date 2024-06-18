@@ -86,7 +86,7 @@ class Item(models.Model):
     class Meta:
         unique_together = ('comanda', 'producte')    
             
-class Ingredient(models.Model):
+class Ingredient(models.Model): 
     nom = models.CharField(max_length=100, primary_key=True)
     preu = models.DecimalField(max_digits=10, decimal_places=2)
 
@@ -106,8 +106,8 @@ class Propietat(models.Model):
     descartats = models.ManyToManyField(Ingredient, related_name='propietats_descartats')
     suplements = models.ManyToManyField(Ingredient, related_name='propietats_suplements')
 
-    class Meta:
-        unique_together = ('item', 'numero_propietat')
+    # class Meta:
+    #     unique_together = ('item', 'numero_propietat')
 
 # els atributs correu_client_id+producte_id hauriem de ser UK.
 class Valoracio(models.Model):

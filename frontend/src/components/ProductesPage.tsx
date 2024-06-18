@@ -19,13 +19,14 @@ import {
   AlertDialogOverlay,
   useDisclosure,
 } from "@chakra-ui/react";
-import { DeleteIcon, EditIcon, ViewIcon, AddIcon } from "@chakra-ui/icons";
+import { DeleteIcon, EditIcon, AddIcon } from "@chakra-ui/icons";
 
 import HamburguesaForm from "./HamburguesaForm";
 import AcompanyamentForm from "./AcompanyamentForm";
 import BegudaForm from "./BegudaForm";
 import PostreForm from "./PostreForm";
 import MenuForm from "./MenuForm";
+import EditProductModal from "./EditProductModal";
 
 interface Product {
   id: number;
@@ -48,6 +49,13 @@ const ProductList: React.FC = () => {
 
   const deleteDisclosure = useDisclosure();
   const cancelRef = React.useRef<HTMLButtonElement>(null);
+
+  const {
+    isOpen: isEditModalOpen,
+    onOpen: onEditModalOpen,
+    onClose: onEditModalClose,
+  } = useDisclosure();
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const fetchProducts = (page: number, tipus: string) => {
     setLoading(true);
@@ -99,6 +107,11 @@ const ProductList: React.FC = () => {
     deleteDisclosure.onClose();
   };
 
+  const handleEditClick = (product: Product) => {
+    setSelectedProduct(product);
+    onEditModalOpen();
+  };
+
   const [showOptions, setShowOptions] = useState(false);
   const [productType, setProductType] = useState("");
 
@@ -113,6 +126,10 @@ const ProductList: React.FC = () => {
 
   const closeForm = () => {
     setProductType("");
+  };
+
+  const refreshProducts = () => {
+    fetchProducts(currentPage, selectedTipus);
   };
 
   if (loading) {
@@ -257,10 +274,7 @@ const ProductList: React.FC = () => {
                 <ul>
                   {product.detalls.ingredients.map(
                     (ingredient: any, index: number) => (
-                      <li key={index}>
-                        {ingredient.nom}
-                        {/* - {ingredient.preu} */}
-                      </li>
+                      <li key={index}>{ingredient.nom}</li>
                     )
                   )}
                 </ul>
@@ -331,15 +345,8 @@ const ProductList: React.FC = () => {
                 colorScheme="blue"
                 aria-label="Edit product"
                 icon={<EditIcon />}
+                onClick={() => handleEditClick(product)}
               />
-              <IconButton
-                aria-label="View product details"
-                colorScheme="green"
-                icon={<ViewIcon />}
-                onClick={() => {
-                  /* Your view product logic here */
-                }}
-              ></IconButton>
             </Flex>
           </Box>
         </Box>
@@ -383,6 +390,14 @@ const ProductList: React.FC = () => {
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
+      {selectedProduct && (
+        <EditProductModal
+          isOpen={isEditModalOpen}
+          onClose={onEditModalClose}
+          product={selectedProduct}
+          refreshProducts={refreshProducts}
+        />
+      )}
     </VStack>
   );
 };
