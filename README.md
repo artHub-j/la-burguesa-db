@@ -16,7 +16,8 @@ This repository hosts the source code and associated resources for a management 
   <img alt="Static Badge" src="https://img.shields.io/badge/-ReactJs-F3551C?logo=react&logoColor=white">
 <p>
   
-## Screen 1 v1.0:
+## Avaluació
 
-<img src="https://github.com/artHub-j/la-burguesa-db/assets/92806890/c9d3aa20-d373-41c9-8c7b-7084ff47bd9c" width="500">
-
+| Apartat | Prob+UML | E.R. | Dades reals | Optimització | Aplicació | Total  |
+|:-------:|:--------:|:----:|:-----------:|--------------|-----------|--------|
+|  Nota   |  6/10    | 7/10 | 9/10        | 6/10         | 7/10      | <b>7,2/10</b> |
