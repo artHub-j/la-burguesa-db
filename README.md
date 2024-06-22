@@ -18,6 +18,7 @@ This repository hosts the source code and associated resources for a management 
   
 ## Avaluació
 
-| Apartat | Prob+UML | E.R. | Dades reals | Optimització | Aplicació | Total  |
-|:-------:|:--------:|:----:|:-----------:|--------------|-----------|--------|
-|  Nota   |  6/10    | 7/10 | 9/10        | 6/10         | 7/10      | <b>7,2/10</b> |
+|   Apartat  |      Prob+UML (20%)      |     E.R. (20%)     |              Dades reals (20%)             | Optimització (5%)                      | Aplicació (35%)      | Total      |
+|:----------:|:------------------------:|:------------------:|:------------------------------------------:|----------------------------------------|----------------------|------------|
+| Descripció | Descripció + disseny UML | Esquema relacional | Script usat per afegir dades reals a la BD | Optimització d'una consulta en concret | Aplicació de gestió. | Nota Final |
+| Nota       | 6/10                     | 7/10               | 9/10                                       | 6/10                                   | 7/10                 | 7,2/10     |
